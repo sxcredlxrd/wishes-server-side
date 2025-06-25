@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  username String @default("Не указано")
+  email String @unique
+  avatar String @default("/uploads/no-user-image.png")
+  password String?
+
+  collections Collection[]
+  sharedLinks SharedLink[]
+
+  @@map("user")
+}
+
+model Collection {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  title String
+  description String?
+  isPublic Boolean @default(false)
+  userId String @map("user_id")
+
+  user User @relation(fields: [userId], references: [id])
+  wishes Wish[]
+  sharedLinks SharedLink[]
+
+  @@map("collection")
+}
+
+model Wish {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  title String
+  description String?
+  picture String?
+  link String?
+  price Int?
+  status EnumWishStatus @default(NOTFULLFILLED)
+  collectionId String @map("collection_id")
+
+  collection Collection @relation(fields: [collectionId], references: [id])
+  sharedLinks SharedLink[]
+
+  @@map("wish")
+}
+
+enum EnumWishStatus {
+  NOTFULLFILLED
+  FULLFILLED
+}
+
+model SharedLink {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  expiresAt DateTime @map("expires_at")
+
+  token String
+  userId String @map("user_id")
+  collectionId String? @map("collection_id")
+  wishId String? @map("wish_id")
+
+  user User @relation(fields: [userId], references: [id])
+  collection Collection? @relation(fields: [collectionId], references: [id])
+  wish Wish? @relation(fields: [wishId], references: [id])
+
+  @@map("shared_links")
+}
