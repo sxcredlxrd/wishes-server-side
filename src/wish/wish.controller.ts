@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { WishService } from './wish.service';
-import { AuthGuard } from '@nestjs/passport';
 import { WishDto } from './dto/wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('wish')
 export class WishController {
   constructor(private readonly wishService: WishService) {}
